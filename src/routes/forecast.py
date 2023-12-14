@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app
 from services.weather_service import WeatherService
-from datetime import datetime
+from dateutil.parser import parse
+import pytz
 
 # Create a Blueprint for the forecast route
 forecast_blueprint = Blueprint('forecast', __name__)
@@ -19,17 +20,23 @@ def get_forecast(city):
         forecast_date = forecast_date.replace(" ", "+")
         try:
             # Convert the ISO 8601 date to a datetime object
-            datetime_obj = datetime.fromisoformat(forecast_date)
+            datetime_obj = parse(forecast_date)
+
+            # Ensure both datetime objects are either naive or aware
+            if datetime_obj.tzinfo is None or datetime_obj.tzinfo.utcoffset(datetime_obj) is None:
+                # Make it an aware datetime object
+                datetime_obj = datetime_obj.replace(tzinfo=pytz.UTC)
+            compare_date = parse("1979-01-01").replace(tzinfo=pytz.UTC)
 
             # Check if the date is before January 1, 1979
-            if datetime_obj < datetime(1979, 1, 1):
+            if datetime_obj < compare_date:
                 return jsonify({'error': 'Dates before January 1st, 1979 are not supported', 'error_code': 'invalid_date'}), 400
 
             # Convert datetime to a timestamp
             timestamp = int(datetime_obj.timestamp())
 
-        except ValueError:
-            return jsonify({'error': 'Invalid date format', 'error_code': 'invalid_date_format'}), 400
+        except ValueError as e:
+            return jsonify({'error': 'Invalid date format', 'reason': str(e), 'error_code': 'invalid_date_format'}), 400
     else:
         timestamp = None
 
