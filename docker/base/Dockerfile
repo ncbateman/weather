@@ -15,3 +15,4 @@ python3-pip
 RUN pip3 install --upgrade pip 
 RUN pip3 install --default-timeout=1000 --ignore-installed flask
 RUN pip3 install --default-timeout=1000 --ignore-installed pyyaml
+RUN pip3 install --default-timeout=1000 --ignore-installed python-dateutil

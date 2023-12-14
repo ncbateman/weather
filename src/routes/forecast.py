@@ -1,33 +1,42 @@
-# routes/forecast.py
-
 from flask import Blueprint, jsonify, request, current_app
 from services.weather_service import WeatherService
+from datetime import datetime
 
 # Create a Blueprint for the forecast route
 forecast_blueprint = Blueprint('forecast', __name__)
 
 @forecast_blueprint.route('/<city>/', methods=['GET'])
 def get_forecast(city):
-    """
-    Endpoint to get the weather forecast for a specific city.
-    Optionally, a date or datetime can be provided in the query string
-    in ISO 8601 format.
-    """
     weather_service = WeatherService(current_app.config)
-    
-    # Optional: Handle 'at' query parameter for specific date or datetime
+
+    # Convert city to coordinates (latitude, longitude) using the WeatherService
+    lat, lon = weather_service.convert_city_to_coordinates(city)
+    if lat is None or lon is None:
+        return jsonify({'error': f"Cannot find city '{city}'", 'error_code': 'city_not_found'}), 404
+
     forecast_date = request.args.get('at', None)
+    if forecast_date:
+        forecast_date = forecast_date.replace(" ", "+")
+        try:
+            # Convert the ISO 8601 date to a datetime object
+            datetime_obj = datetime.fromisoformat(forecast_date)
+
+            # Check if the date is before January 1, 1979
+            if datetime_obj < datetime(1979, 1, 1):
+                return jsonify({'error': 'Dates before January 1st, 1979 are not supported', 'error_code': 'invalid_date'}), 400
+
+            # Convert datetime to a timestamp
+            timestamp = int(datetime_obj.timestamp())
+
+        except ValueError:
+            return jsonify({'error': 'Invalid date format', 'error_code': 'invalid_date_format'}), 400
+    else:
+        timestamp = None
 
     try:
-        if forecast_date:
-            # If a specific date is provided, fetch forecast for that date
-            # Implement the logic based on your requirements
-            # For example, weather_service.get_forecast_by_date(city, forecast_date)
-            pass
-        else:
-            # Fetch current weather data
-            status_code, data = weather_service.get_weather_data(city)
-            return jsonify(data), status_code
+        # Fetch weather data (current or specific time)
+        status_code, data = weather_service.get_weather(lat, lon, timestamp)
+        return jsonify(data), status_code
     except Exception as e:
-        # Handle exceptions and errors
-        return jsonify({'error': str(e)}), 500
+        # Generic catch-all 500 error response
+        return jsonify({'error': 'Something went wrong', 'error_code': 'internal_server_error'}), 500

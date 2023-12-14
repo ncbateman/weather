@@ -30,13 +30,11 @@ app.register_blueprint(forecast_blueprint, url_prefix='/forecast')
 def not_found(error):
     return jsonify({'error': 'Not found', 'error_code': 'not_found'}), 404
 
-@app.errorhandler(400)
-def bad_request(error):
-    return jsonify({'error': 'Bad request', 'error_code': 'bad_request'}), 400
-
-@app.errorhandler(500)
-def internal_server_error(error):
-    return jsonify({'error': 'Internal Server Error', 'error_code': 'internal_server_error'}), 500
+@app.errorhandler(Exception)
+def handle_exception(error):
+    """Handle all unhandled exceptions with a generic error message."""
+    app.logger.error(f"Unhandled Exception: {error}")  # Log the error for debugging
+    return jsonify({'error': 'Something went wrong', 'error_code': 'internal_server_error'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=8080)
