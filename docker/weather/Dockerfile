@@ -1,10 +1,10 @@
-# Use the official Ubuntu image as a parent image
+# Use the weather base image.
 FROM weatherbase:latest
 
 # Set working directory
 WORKDIR /app
 
-# Copy the necessary files from your host to the container
+# Copy the necessary files from host to container
 COPY src/ ./src/
 
 # Command to run when the container starts

@@ -13,5 +13,5 @@ python3-pip
 
 # Upgrade pip and install the required Python packages.
 RUN pip3 install --upgrade pip 
-RUN pip3 install --default-timeout=1000 flask
-RUN pip3 install --default-timeout=1000 pyyaml
+RUN pip3 install --default-timeout=1000 --ignore-installed flask
+RUN pip3 install --default-timeout=1000 --ignore-installed pyyaml

@@ -1,4 +1,4 @@
 # .gitignore
 
 # Ignore the OpenWeatherMap credentials file
-/src/config/open-weather-api.yaml
+/src/config/config.yaml
