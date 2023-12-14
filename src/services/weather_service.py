@@ -1,15 +1,22 @@
 import requests
+from .cache_service import CacheService
 
 class WeatherService:
     def __init__(self, config):
         self.api_key = config['API_KEY']
         self.base_url = "https://api.openweathermap.org/data/3.0/onecall"
+        self.cache = CacheService()
 
     def get_weather(self, lat, lon, timestamp=None):
         """
         Fetches weather data for given coordinates. If a timestamp is provided,
         fetches historical weather data for that time, otherwise fetches current weather data.
         """
+        cache_key = f"{lat},{lon},{timestamp}"
+        cached_response = self.cache.get(cache_key)
+        if cached_response:
+            return 200, cached_response
+
         params = {
             'lat': lat,
             'lon': lon,
@@ -18,37 +25,32 @@ class WeatherService:
             'exclude': 'minutely,daily,alerts'
         }
 
-        # If timestamp is provided, use the timemachine endpoint
         if timestamp:
             endpoint = self.base_url + "/timemachine"
             params['dt'] = timestamp
         else:
             endpoint = self.base_url
 
-        # Prepare the request without sending it to get the full URL
         prepared_request = requests.Request('GET', endpoint, params=params).prepare()
         full_url = prepared_request.url
-
-        # Print the full URL
         print("Request URL:", full_url)
 
         response = requests.get(full_url)
         if response.status_code == 200:
-            return response.status_code, self.process_response(response.json())
+            weather_data = self.process_response(response.json())
+            self.cache.set(cache_key, weather_data)
+            return response.status_code, weather_data
         else:
             return response.status_code, response.json().get('message', 'Unknown error')
-
 
     def process_response(self, data):
         """
         Processes the API response and extracts relevant weather data.
         """
-
-        # Check if response is for a specific timestamp
         if 'data' in data:
-            weather_data_point = data['data'][0]  # Historical data
+            weather_data_point = data['data'][0]
         elif 'current' in data:
-            weather_data_point = data['current']  # Current data
+            weather_data_point = data['current']
         else:
             return {'error': 'Invalid data format'}
 
@@ -59,12 +61,7 @@ class WeatherService:
             'clouds': f"{weather_data_point.get('clouds', 'N/A')}%"
         }
 
-        # Add rain information if available
-        if 'rain' in weather_data_point:
-            weather_data['rain'] = f"{weather_data_point['rain'].get('1h', 'N/A')} mm"
-
         return weather_data
-
 
     def convert_city_to_coordinates(self, city_name):
         """
