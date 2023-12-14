@@ -26,9 +26,8 @@ def get_forecast(city):
             pass
         else:
             # Fetch current weather data
-            weather_data = weather_service.get_weather_data(city)
-        return jsonify(weather_data)
+            status_code, data = weather_service.get_weather_data(city)
+            return jsonify(data), status_code
     except Exception as e:
         # Handle exceptions and errors
         return jsonify({'error': str(e)}), 500
-

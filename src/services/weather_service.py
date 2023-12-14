@@ -16,11 +16,10 @@ class WeatherService:
         }
         response = requests.get(self.base_url, params=params)
         if response.status_code == 200:
-            return self.process_response(response.json())
+            return response.status_code, self.process_response(response.json())
         else:
-            # Instead of raising an error, return the error message
-            error_message = response.json().get('message', 'Unknown error')
-            return {'error': error_message}
+            # Pass through the status code and error message
+            return response.status_code, response.json().get('message', 'Unknown error')
 
     def process_response(self, data):
         """
