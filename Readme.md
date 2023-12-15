@@ -141,7 +141,7 @@ After running the application, the following endpoints will be available:
 
 ## Basic Authentication
 
-The API endpoints are secured with Basic Authentication. Use the following credentials for access:
+The API endpoint `forecast` is secured with Basic Authentication. Use the following credentials for access:
 
 ```
 Username: admin
@@ -151,5 +151,5 @@ Password: secret
 For example, when using curl to access an endpoint:
 
 ```
-curl -u admin:secret http://localhost:8080/ping/
+curl -u admin:secret http://localhost:8080/forecast/london/
 ```

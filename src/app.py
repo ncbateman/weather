@@ -40,12 +40,6 @@ def create_app(testing=False):
     # Initialize WeatherService
     weather_service = WeatherService(app.config)
 
-    # Apply authentication to the ping blueprint
-    @ping_blueprint.before_request
-    @auth.login_required
-    def before_ping():
-        pass
-
     # Apply authentication to the forecast blueprint
     @forecast_blueprint.before_request
     @auth.login_required
