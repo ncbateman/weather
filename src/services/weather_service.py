@@ -85,7 +85,7 @@ class WeatherService:
         # Extract and format specific weather details from the data point.
         weather_data = {
             'temperature': f"{weather_data_point.get('temp', 'N/A')}C",
-            'pressure': f"{weather_data_point.get('pressure', 'N/A')} hPa",
+            'pressure': f"{weather_data_point.get('pressure', 'N/A')}hPa",
             'humidity': f"{weather_data_point.get('humidity', 'N/A')}%",
             'clouds': f"{weather_data_point.get('clouds', 'N/A')}%"
         }
