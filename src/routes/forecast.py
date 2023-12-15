@@ -3,6 +3,7 @@ from services.weather_service import WeatherService
 from dateutil.parser import parse
 from datetime import datetime as dt, timedelta
 from flask_httpauth import HTTPBasicAuth
+from utils.config import Config
 import os
 import pytz
 import yaml
@@ -10,22 +11,19 @@ import yaml
 # Create a Blueprint for the forecast route
 forecast_blueprint = Blueprint('forecast', __name__)
 
-# Define the root directory of the application.
-WEATHER_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Update the load_user_credentials function to use the Config class
+def load_user_credentials(testing=False):
+    config_instance = Config.get_instance()
+    config_instance.load_user_credentials()
+    return config_instance.get_user_credentials()
+
+users = load_user_credentials()
 
 auth = HTTPBasicAuth()
 
-# Load user credentials from a YAML file
-def load_user_credentials():
-    users_config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'users.yaml')
-    with open(users_config_path, 'r') as users_file:
-        return yaml.safe_load(users_file)
-
-USERS = load_user_credentials()
-
 @auth.verify_password
 def verify_password(username, password):
-    if username in USERS and USERS[username] == password:
+    if username in users and users[username] == password:
         return username
 
 # Apply authentication to the forecast blueprint

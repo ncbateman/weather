@@ -1,3 +1,3 @@
 API_KEY: "test_api_key"
-BASE_URL: "test_base_url"
-GEOCODING_URL: "test_geocoding_url"
+BASE_URL: "http://test_base_url"
+GEOCODING_URL: "http://test_geocoding_url"

@@ -1,20 +1,18 @@
 import unittest
 from unittest.mock import patch, Mock
 import json
+from utils.config import Config
 from services.weather_service import WeatherService
 
 class TestWeatherService(unittest.TestCase):
 
     def setUp(self):
-        # Setup a mock configuration for the WeatherService
-        self.mock_config = {
-            'API_KEY': 'test_api_key',
-            'BASE_URL': 'http://test_base_url',
-            'GEOCODING_URL': 'http://test_geocoding_url'
-        }
-        self.weather_service = WeatherService(self.mock_config)
+        self.config = Config.get_instance()
+        self.config.load_app_config(testing=True)
+        self.config.load_user_credentials()
+        self.weather_service = WeatherService(self.config)
 
-    @patch('services.weather_service.requests.get')
+    @patch('requests.get')
     def test_get_weather_success(self, mock_get):
         # Mock successful API response
         mock_get.return_value = Mock(status_code=200)
@@ -26,7 +24,7 @@ class TestWeatherService(unittest.TestCase):
         self.assertIn('temperature', data)
         self.assertIn('pressure', data)
 
-    @patch('services.weather_service.requests.get')
+    @patch('requests.get')
     def test_get_weather_api_error(self, mock_get):
         # Mock API error response
         mock_get.return_value = Mock(status_code=500)

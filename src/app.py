@@ -3,6 +3,7 @@ from flask_httpauth import HTTPBasicAuth
 from services.weather_service import WeatherService
 from routes.ping import ping_blueprint
 from routes.forecast import forecast_blueprint
+from utils.config import Config
 import os
 import yaml
 
@@ -13,9 +14,6 @@ def create_app(testing=False):
     """
     Initialize and configure the Flask application.
 
-    This function sets up the Flask app with necessary configurations, error handlers, 
-    and route blueprints. It can also be configured for testing purposes.
-
     Args:
         testing (bool): If True, the app will be configured for testing.
 
@@ -23,22 +21,21 @@ def create_app(testing=False):
         Flask app: The configured Flask application.
     """
 
-    # Initialize the Flask application.
     app = Flask(__name__)
     app.url_map.strict_slashes = False
 
-    # Load configuration from a file.
-    # 'test-config.yaml' is used when in testing mode; otherwise, 'config.yaml' is used.
-    config_filename = 'test-config.yaml' if testing else 'config.yaml'
-    config_path = os.path.join(WEATHER_ROOT_DIR, 'config', config_filename)
-    with open(config_path, 'r') as config_file:
-        config_data = yaml.safe_load(config_file)
-        app.config.update(config_data)
+    # Load configuration using Config singleton
+    config_instance = Config.get_instance()
+    config_instance.load_app_config(testing)
+    config_instance.load_user_credentials()
+    
+    # Load config into app
+    app.config.update(config_instance.get_app_config())
 
-    # Initialize WeatherService with the application configuration.
-    weather_service = WeatherService(app.config)
+    # Initialize WeatherService and other services
+    weather_service = WeatherService(config_instance)
 
-    # Register Blueprints for different routes.
+    # Register Blueprints
     app.register_blueprint(ping_blueprint)
     app.register_blueprint(forecast_blueprint, url_prefix='/forecast')
 

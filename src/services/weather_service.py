@@ -1,21 +1,25 @@
-import requests
 import logging
+import requests
+from utils.config import Config
 from .cache_service import CacheService
+from utils.config import Config
 
 class WeatherService:
     def __init__(self, config):
+
+        print(config)
         """
-        Initialize the WeatherService class with configuration settings.
+        Initialize the WeatherService class using settings from the Config utility class.
 
         This initialization sets up the WeatherService with API keys and base URLs 
         required for interacting with the OpenWeatherMap API. It also initializes a 
         CacheService for caching weather data and sets up logging.
-
-        Args:
-            config (dict): A dictionary containing configuration settings such as API key, base URL, etc.
         """
 
+        config = Config.get_instance().get_app_config()
+
         # Extract the API key, base URL, and Geocoding URL for the OpenWeatherMap API.
+        # Retrieve configuration settings using attribute access
         self.api_key = config['API_KEY']
         self.base_url = config['BASE_URL']
         self.geocoding_url = config['GEOCODING_URL']

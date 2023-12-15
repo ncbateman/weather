@@ -4,28 +4,23 @@ from unittest.mock import patch
 import json
 from app import create_app
 from services.weather_service import WeatherService
+from utils.config import Config
 import os
 import yaml
 import base64
 
 class TestApp(TestCase):
     def create_app(self):
-        """
-        Create an instance of the app with the testing configuration
-        """
+        self.config = Config.get_instance()
+        self.config.load_user_credentials()
         return create_app(testing=True)
 
     def setUp(self):
         super(TestApp, self).setUp()
-        # Load user credentials from the YAML file
         self.load_user_credentials()
 
     def load_user_credentials(self):
-        # Adjust the path if necessary
-        users_config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'users.yaml')
-        with open(users_config_path, 'r') as users_file:
-            users = yaml.safe_load(users_file)
-        # Assuming there's at least one user, use the first one for testing
+        users = self.config.get_user_credentials()
         self.test_username, self.test_password = next(iter(users.items()))
 
     def get_auth_headers(self):
@@ -67,8 +62,8 @@ class TestApp(TestCase):
         Test the application's configuration settings.
         """
         self.assertEqual(self.app.config['API_KEY'], 'test_api_key')
-        self.assertEqual(self.app.config['BASE_URL'], 'test_base_url')
-        self.assertEqual(self.app.config['GEOCODING_URL'], 'test_geocoding_url')
+        self.assertEqual(self.app.config['BASE_URL'], 'http://test_base_url')
+        self.assertEqual(self.app.config['GEOCODING_URL'], 'http://test_geocoding_url')
 
     @patch.object(WeatherService, 'convert_city_to_coordinates')
     @patch.object(WeatherService, 'get_weather')

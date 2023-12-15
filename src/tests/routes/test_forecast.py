@@ -3,27 +3,21 @@ from flask_testing import TestCase
 from unittest.mock import patch
 from app import create_app
 from services.weather_service import WeatherService
+from utils.config import Config
 import os
 import yaml
 import base64
 
 class TestForecast(TestCase):
     def create_app(self):
-        # Create an instance of the app with the testing configuration
         return create_app(testing=True)
 
     def setUp(self):
         super(TestForecast, self).setUp()
-        # Load user credentials from the YAML file
-        self.load_user_credentials()
-
-    def load_user_credentials(self):
-        # Adjust the path if necessary
-        users_config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'config', 'users.yaml')
-        with open(users_config_path, 'r') as users_file:
-            users = yaml.safe_load(users_file)
-        # Assuming there's at least one user, use the first one for testing
-        self.test_username, self.test_password = next(iter(users.items()))
+        self.config = Config.get_instance()
+        self.config.load_user_credentials()
+        self.users = self.config.get_user_credentials()
+        self.test_username, self.test_password = next(iter(self.users.items()))
 
     def get_auth_headers(self):
         credentials = f"{self.test_username}:{self.test_password}"
