@@ -1,29 +1,56 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from flask_httpauth import HTTPBasicAuth
 from services.weather_service import WeatherService
 from routes.ping import ping_blueprint
 from routes.forecast import forecast_blueprint
 import os
 import yaml
 
-def create_app(testing=False):
-    # Define the root directory of the application.
-    WEATHER_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# Define the root directory of the application.
+WEATHER_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-    # Initialize the Flask application.s
+# Initialize HTTP Basic Authentication
+auth = HTTPBasicAuth()
+
+# Load user credentials from a YAML file
+def load_user_credentials():
+    users_config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'users.yaml')
+    with open(users_config_path, 'r') as users_file:
+        return yaml.safe_load(users_file)
+
+USERS = load_user_credentials()
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in USERS and USERS[username] == password:
+        return username
+
+def create_app(testing=False):
+    # Initialize the Flask application
     app = Flask(__name__)
+    app.url_map.strict_slashes = False
 
     # Load configuration
-    if testing:
-        config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'test-config.yaml')
-    else:
-        config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'config.yaml')
-
+    config_filename = 'test-config.yaml' if testing else 'config.yaml'
+    config_path = os.path.join(WEATHER_ROOT_DIR, 'config', config_filename)
     with open(config_path, 'r') as config_file:
         config_data = yaml.safe_load(config_file)
         app.config.update(config_data)
 
     # Initialize WeatherService
     weather_service = WeatherService(app.config)
+
+    # Apply authentication to the ping blueprint
+    @ping_blueprint.before_request
+    @auth.login_required
+    def before_ping():
+        pass
+
+    # Apply authentication to the forecast blueprint
+    @forecast_blueprint.before_request
+    @auth.login_required
+    def before_forecast():
+        pass
 
     # Register Blueprints
     app.register_blueprint(ping_blueprint)
