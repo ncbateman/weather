@@ -4,10 +4,18 @@ from .cache_service import CacheService
 
 class WeatherService:
     def __init__(self, config):
-        # Initialize the WeatherService class with configuration settings.
-        # config: A dictionary containing configuration settings like API key.
+        """
+        Initialize the WeatherService class with configuration settings.
 
-        # Extract the API key, base URL and Geocoding URL for the OpenWeatherMap API.
+        This initialization sets up the WeatherService with API keys and base URLs 
+        required for interacting with the OpenWeatherMap API. It also initializes a 
+        CacheService for caching weather data and sets up logging.
+
+        Args:
+            config (dict): A dictionary containing configuration settings such as API key, base URL, etc.
+        """
+
+        # Extract the API key, base URL, and Geocoding URL for the OpenWeatherMap API.
         self.api_key = config['API_KEY']
         self.base_url = config['BASE_URL']
         self.geocoding_url = config['GEOCODING_URL']
@@ -24,6 +32,14 @@ class WeatherService:
         """
         Fetches weather data for given coordinates. If a timestamp is provided,
         fetches historical weather data for that time, otherwise fetches current weather data.
+
+        Args:
+            lat (float): Latitude of the location.
+            lon (float): Longitude of the location.
+            timestamp (int, optional): Unix timestamp for historical data. Defaults to None.
+
+        Returns:
+            tuple: HTTP status code and the weather data or error message.
         """
         # Create a unique cache key based on latitude, longitude, and timestamp.
         cache_key = f"{lat},{lon},{timestamp}"
@@ -43,78 +59,76 @@ class WeatherService:
             'exclude': 'minutely,daily,alerts'  # Exclude unnecessary data.
         }
 
-        # If a timestamp is provided, fetch historical data; otherwise, fetch current data.
+        # Determine the appropriate endpoint based on the presence of a timestamp.
+        endpoint = self.base_url + "/timemachine" if timestamp else self.base_url
         if timestamp:
-            endpoint = self.base_url + "/timemachine"
             params['dt'] = timestamp
-        else:
-            endpoint = self.base_url
 
         # Prepare and log the full request URL.
         prepared_request = requests.Request('GET', endpoint, params=params).prepare()
-        full_url = prepared_request.url
-        self.logger.info(f"Request URL: {full_url}")
+        self.logger.info(f"Request URL: {prepared_request.url}")
 
-        # Make the API request.
-        response = requests.get(full_url)
+        # Make the API request and handle the response.
+        response = requests.get(prepared_request.url)
         if response.status_code == 200:
-            # Process the response if the status code is 200 (OK).
+            # Process and cache the response if successful.
             weather_data = self.process_response(response.json())
-            # Store the processed data in cache.
             self.cache.set(cache_key, weather_data)
             return response.status_code, weather_data
         else:
-            # Log the error if the API response is not successful.
+            # Log the error for unsuccessful API responses.
             self.logger.error(f"API error: {response.status_code}, {response.json().get('message', 'Unknown error')}")
             return response.status_code, response.json().get('message', 'Unknown error')
 
     def process_response(self, data):
         """
         Processes the API response and extracts relevant weather data.
+
+        Args:
+            data (dict): The raw data received from the API.
+
+        Returns:
+            dict: Processed weather data.
         """
-        # Check and extract relevant data from the API response.
+        # Extract relevant data based on the structure of the response.
         if 'data' in data:
             weather_data_point = data['data'][0]
         elif 'current' in data:
             weather_data_point = data['current']
         else:
-            # Log and return an error if the data format is not as expected.
             self.logger.error("Invalid data format in response")
             return {'error': 'Invalid data format'}
 
-        # Extract and format specific weather details from the data point.
-        weather_data = {
+        # Format the extracted weather details.
+        return {
             'temperature': f"{weather_data_point.get('temp', 'N/A')}C",
             'pressure': f"{weather_data_point.get('pressure', 'N/A')}hPa",
             'humidity': f"{weather_data_point.get('humidity', 'N/A')}%",
             'clouds': f"{weather_data_point.get('clouds', 'N/A')}%"
         }
 
-        return weather_data
-
     def convert_city_to_coordinates(self, city_name):
         """
         Converts a city name to latitude and longitude using the OpenWeatherMap Geocoding API.
+
+        Args:
+            city_name (str): The name of the city to convert.
+
+        Returns:
+            tuple: Latitude and longitude of the city, or None, None if not found or in case of an error.
         """
-        # Prepare parameters for the geocoding API request.
-        params = {
-            'q': city_name,
-            'limit': 1,  # Limit the response to one result.
-            'appid': self.api_key
-        }
+        # Prepare the parameters for the geocoding API request.
+        params = {'q': city_name, 'limit': 1, 'appid': self.api_key}
 
         # Make the geocoding API request.
         response = requests.get(self.geocoding_url, params=params)
         if response.status_code == 200:
             data = response.json()
             if data:
-                # If the city is found, return the latitude and longitude
                 return data[0]['lat'], data[0]['lon']
             else:
-                # If the city is not found, return None, None
                 self.logger.error(f"City not found: {city_name}")
                 return None, None
         else:
-            # If the API response is not successful, return None, None
             self.logger.error(f"Geocoding API error: {response.status_code}")
             return None, None
