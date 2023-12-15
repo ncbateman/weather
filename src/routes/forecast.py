@@ -33,7 +33,6 @@ def before_forecast():
     pass
 
 @forecast_blueprint.route('/<city>/', methods=['GET'])
-@forecast_blueprint.route('/<city>/', methods=['GET'])
 def get_forecast(city):
     """
     Retrieve the weather forecast for a specified city.
