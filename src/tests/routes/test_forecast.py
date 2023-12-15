@@ -7,10 +7,8 @@ from services.weather_service import WeatherService
 class TestForecast(TestCase):
     def create_app(self):
         # Create an instance of the app with the testing configuration
-        app = create_app()
-        app.config['TESTING'] = True
-        app.config['API_KEY'] = 'mock_api_key'  # Mock API key
-        return app
+        return create_app(testing=True)
+        
 
     @patch.object(WeatherService, 'convert_city_to_coordinates')
     @patch.object(WeatherService, 'get_weather')

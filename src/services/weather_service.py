@@ -7,9 +7,10 @@ class WeatherService:
         # Initialize the WeatherService class with configuration settings.
         # config: A dictionary containing configuration settings like API key.
 
-        # Extract the API key and base URL for the OpenWeatherMap API.
+        # Extract the API key, base URL and Geocoding URL for the OpenWeatherMap API.
         self.api_key = config['API_KEY']
-        self.base_url = "https://api.openweathermap.org/data/3.0/onecall"
+        self.base_url = config['BASE_URL']
+        self.geocoding_url = config['GEOCODING_URL']
 
         # Initialize the CacheService to cache weather data.
         self.cache = CacheService()
@@ -95,8 +96,7 @@ class WeatherService:
         """
         Converts a city name to latitude and longitude using the OpenWeatherMap Geocoding API.
         """
-        # Prepare the URL and parameters for the geocoding API request.
-        geocoding_url = "http://api.openweathermap.org/geo/1.0/direct"
+        # Prepare parameters for the geocoding API request.
         params = {
             'q': city_name,
             'limit': 1,  # Limit the response to one result.
@@ -104,7 +104,7 @@ class WeatherService:
         }
 
         # Make the geocoding API request.
-        response = requests.get(geocoding_url, params=params)
+        response = requests.get(self.geocoding_url, params=params)
         if response.status_code == 200:
             data = response.json()
             if data:

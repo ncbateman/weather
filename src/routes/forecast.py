@@ -38,7 +38,7 @@ def get_forecast(city):
             timestamp = int(datetime_obj.timestamp())
 
         except ValueError as e:
-            return jsonify({'error': 'Invalid date format', 'reason': str(e), 'error_code': 'invalid_date_format'}), 400
+            return jsonify({'error': 'Invalid date format', 'error_code': 'invalid_date_format'}), 400
     else:
         timestamp = None
 

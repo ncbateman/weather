@@ -14,14 +14,13 @@ def create_app(testing=False):
 
     # Load configuration
     if testing:
-        # Load testing configuration
-        app.config['TESTING'] = True
-        app.config['API_KEY'] = 'test_api_key'
+        config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'test-config.yaml')
     else:
         config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'config.yaml')
-        with open(config_path, 'r') as config_file:
-            config_data = yaml.safe_load(config_file)
-            app.config.update(config_data)
+
+    with open(config_path, 'r') as config_file:
+        config_data = yaml.safe_load(config_file)
+        app.config.update(config_data)
 
     # Initialize WeatherService
     weather_service = WeatherService(app.config)

@@ -45,8 +45,9 @@ class TestApp(TestCase):
         """
         Test the application's configuration settings.
         """
-        self.assertTrue(self.app.config['TESTING'])
-        self.assertEqual(self.app.config['API_KEY'], 'test_api_key')  # Assert that the API key is as expected
+        self.assertEqual(self.app.config['API_KEY'], 'test_api_key')
+        self.assertEqual(self.app.config['BASE_URL'], 'test_base_url')
+        self.assertEqual(self.app.config['GEOCODING_URL'], 'test_geocoding_url')
 
     @patch.object(WeatherService, 'convert_city_to_coordinates')
     @patch.object(WeatherService, 'get_weather')
