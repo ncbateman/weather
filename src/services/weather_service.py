@@ -1,4 +1,5 @@
 import requests
+import logging
 from .cache_service import CacheService
 
 class WeatherService:
@@ -6,6 +7,11 @@ class WeatherService:
         self.api_key = config['API_KEY']
         self.base_url = "https://api.openweathermap.org/data/3.0/onecall"
         self.cache = CacheService()
+
+        # Set up logging
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
+        self.logger = logging.getLogger('WeatherService')
+        self.logger.info("weather service initialized")
 
     def get_weather(self, lat, lon, timestamp=None):
         """
@@ -33,7 +39,7 @@ class WeatherService:
 
         prepared_request = requests.Request('GET', endpoint, params=params).prepare()
         full_url = prepared_request.url
-        print("Request URL:", full_url)
+        self.logger.info(f"request URL: {full_url}")
 
         response = requests.get(full_url)
         if response.status_code == 200:
@@ -41,6 +47,7 @@ class WeatherService:
             self.cache.set(cache_key, weather_data)
             return response.status_code, weather_data
         else:
+            self.logger.error(f"API error: {response.status_code}, {response.json().get('message', 'Unknown error')}")
             return response.status_code, response.json().get('message', 'Unknown error')
 
     def process_response(self, data):
@@ -52,6 +59,7 @@ class WeatherService:
         elif 'current' in data:
             weather_data_point = data['current']
         else:
+            self.logger.error("invalid data format in response")
             return {'error': 'Invalid data format'}
 
         weather_data = {
@@ -79,6 +87,8 @@ class WeatherService:
             if data:
                 return data[0]['lat'], data[0]['lon']
             else:
+                self.logger.error(f"City not found: {city_name}")
                 return None, None
         else:
+            self.logger.error(f"Geocoding API error: {response.status_code}")
             raise Exception(f"Geocoding API error: {response.status_code}")
