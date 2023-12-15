@@ -5,7 +5,7 @@ This Weather Service Application is a Flask-based web service that provides weat
 
 ## Prerequisites
 Before you begin, ensure you have met the following requirements:
-* You have a machine with Ubuntu 20.04.
+* You have a machine with Ubuntu 20.04 or Windows.
 * You have basic knowledge of Docker and Flask.
 
 ## Installation
@@ -70,17 +70,25 @@ To install Docker on Ubuntu 20.04, follow these steps:
 
 ## Usage
 
-The application can be built, run, and tested using the provided scripts.
+The application can be built, run, and tested using the provided Bash or PowerShell scripts, depending on your operating system.
 
 ### Build Script
 
 1. **Build the Docker Image**
 
-   Use the `build.sh` script to build the Docker image for the application.
+   - **For Ubuntu 20.04:**
+     Use the `build.sh` script to build the Docker image for the application.
 
-   ```bash
-   ./scripts/bash/build.sh
-   ```
+     ```bash
+     sh ./scripts/bash/build.sh
+     ```
+
+   - **For Windows:**
+     Use the `build.ps1` script to build the Docker image for the application.
+
+     ```powershell
+     ./scripts/powershell/build.ps1
+     ```
 
    This will create a Docker image with all necessary dependencies installed.
 
@@ -88,11 +96,19 @@ The application can be built, run, and tested using the provided scripts.
 
 1. **Run the Application**
 
-   Use the `run.sh` script to start the application in a Docker container.
+   - **For Ubuntu 20.04:**
+     Use the `run.sh` script to start the application in a Docker container.
 
-   ```bash
-   ./scripts/bash/run.sh
-   ```
+     ```bash
+     sh ./scripts/bash/run.sh
+     ```
+
+   - **For Windows:**
+     Use the `run.ps1` script to start the application in a Docker container.
+
+     ```powershell
+     ./scripts/powershell/run.ps1
+     ```
 
    This will start the Flask application inside a Docker container. The API will be accessible at `localhost:8080`.
 
@@ -100,11 +116,19 @@ The application can be built, run, and tested using the provided scripts.
 
 1. **Run Tests**
 
-   Use the `test.sh` script to execute the tests for the application.
+   - **For Ubuntu 20.04:**
+     Use the `test.sh` script to execute the tests for the application.
 
-   ```bash
-   ./scripts/bash/test.sh
-   ```
+     ```bash
+     sh ./scripts/bash/test.sh
+     ```
+
+   - **For Windows:**
+     Use the `test.ps1` script to execute the tests for the application.
+
+     ```powershell
+     ./scripts/powershell/test.ps1
+     ```
 
    This will run the unit tests in a Docker container and display the test results.
 
