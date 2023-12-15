@@ -6,8 +6,6 @@ from utils.config import Config
 
 class WeatherService:
     def __init__(self, config):
-
-        print(config)
         """
         Initialize the WeatherService class using settings from the Config utility class.
 
