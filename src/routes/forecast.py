@@ -1,5 +1,3 @@
-# routes/forecast.py
-
 from flask import Blueprint, jsonify, request, current_app
 from services.weather_service import WeatherService
 from dateutil.parser import parse
@@ -49,3 +47,5 @@ def get_forecast(city):
     except Exception as e:
         # Generic catch-all 500 error response
         return jsonify({'error': 'Something went wrong', 'error_code': 'internal_server_error'}), 500
+
+# TODO: add error for too far in the future.

@@ -9,7 +9,6 @@ class TestForecast(TestCase):
         # Create an instance of the app with the testing configuration
         return create_app(testing=True)
         
-
     @patch.object(WeatherService, 'convert_city_to_coordinates')
     @patch.object(WeatherService, 'get_weather')
     def test_forecast_valid_city(self, mock_get_weather, mock_convert_city):

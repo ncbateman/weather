@@ -108,13 +108,13 @@ class WeatherService:
         if response.status_code == 200:
             data = response.json()
             if data:
-                # Return the latitude and longitude if the city is found.
+                # If the city is found, return the latitude and longitude
                 return data[0]['lat'], data[0]['lon']
             else:
-                # Log an error if the city is not found in the response.
+                # If the city is not found, return None, None
                 self.logger.error(f"City not found: {city_name}")
                 return None, None
         else:
-            # Log and raise an error if the geocoding API response is not successful.
+            # If the API response is not successful, return None, None
             self.logger.error(f"Geocoding API error: {response.status_code}")
-            raise Exception(f"Geocoding API error: {response.status_code}")
+            return None, None
