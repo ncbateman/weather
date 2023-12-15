@@ -52,7 +52,7 @@ To install Docker on Ubuntu 20.04, follow these steps:
 
    The service should be active and running.
 
-## Docker Installation on Windows 11 with WSL
+### Docker Installation on Windows 11 with WSL
 
 To install Docker on Windows 11 using Windows Subsystem for Linux (WSL), follow these steps:
 
@@ -104,12 +104,6 @@ To install Docker on Windows 11 using Windows Subsystem for Linux (WSL), follow 
    - After restarting, Docker Desktop will start automatically.
    - You can right-click the Docker icon in the system tray and select "Dashboard" to see the Docker Desktop interface.
 
-9. **Verify Docker Installation**
-
-   - Open a command prompt or PowerShell and run `docker --version` to confirm the Docker version installed.
-   - Test that Docker is running correctly by executing `docker run hello-world` in the command prompt or PowerShell.
-
-Remember, Docker Desktop for Windows with WSL integration provides a seamless Docker experience on Windows 11. Ensure that your system meets the requirements for running WSL 2 and Docker Desktop.
 
 ### Application Setup
 
