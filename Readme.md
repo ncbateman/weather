@@ -139,10 +139,17 @@ After running the application, the following endpoints will be available:
 - `GET /ping/`: A health check endpoint that returns the status of the application.
 - `GET /forecast/<city_name>/?at=<ISO-8061 datetime>`: Fetches weather data for the specified city. The optional `at` parameter can be used to retrieve weather information at a specific time (in ISO-8601 format).
 
-## Support
+## Basic Authentication
 
-For support, contact the maintainer or submit an issue in the [GitHub repository](https://github.com/ncbateman/weather).
+The API endpoints are secured with Basic Authentication. Use the following credentials for access:
 
-## License
+```
+Username: admin
+Password: secret
+```
 
-This project is licensed under the [MIT License](LICENSE).
+For example, when using curl to access an endpoint:
+
+```
+curl -u admin:secret http://localhost:8080/ping/
+```
