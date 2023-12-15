@@ -137,6 +137,20 @@ To install Docker on Windows 11 using Windows Subsystem for Linux (WSL), follow 
    GEOCODING_URL: "http://api.openweathermap.org/geo/1.0/direct"
    ```
 
+4. **Create Users File**
+
+   Copy the `users.example.yaml` file to a new file named `users.yaml`.
+
+   ```bash
+   cp config/users.example.yaml config/users.yaml
+   ```
+
+   Edit the `users.yaml` file and replace `api_key` with your actual API key from OpenWeatherMap.
+
+   ```yaml
+   user: "secret"
+   ```
+
 
 ## Usage
 
