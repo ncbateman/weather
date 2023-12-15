@@ -36,7 +36,5 @@ class TestForecast(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(b'invalid_date_format', response.data)
 
-# Add more tests as necessary...
-
 if __name__ == '__main__':
     unittest.main()
