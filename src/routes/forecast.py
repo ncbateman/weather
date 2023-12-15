@@ -1,10 +1,37 @@
 from flask import Blueprint, jsonify, request, current_app
 from services.weather_service import WeatherService
 from dateutil.parser import parse
+from flask_httpauth import HTTPBasicAuth
+import os
 import pytz
+import yaml
 
 # Create a Blueprint for the forecast route
 forecast_blueprint = Blueprint('forecast', __name__)
+
+# Define the root directory of the application.
+WEATHER_ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+auth = HTTPBasicAuth()
+
+# Load user credentials from a YAML file
+def load_user_credentials():
+    users_config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'users.yaml')
+    with open(users_config_path, 'r') as users_file:
+        return yaml.safe_load(users_file)
+
+USERS = load_user_credentials()
+
+@auth.verify_password
+def verify_password(username, password):
+    if username in USERS and USERS[username] == password:
+        return username
+
+# Apply authentication to the forecast blueprint
+@forecast_blueprint.before_request
+@auth.login_required
+def before_forecast():
+    pass
 
 @forecast_blueprint.route('/<city>/', methods=['GET'])
 def get_forecast(city):

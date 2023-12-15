@@ -4,6 +4,9 @@ from unittest.mock import patch
 import json
 from app import create_app
 from services.weather_service import WeatherService
+import os
+import yaml
+import base64
 
 class TestApp(TestCase):
     def create_app(self):
@@ -11,6 +14,24 @@ class TestApp(TestCase):
         Create an instance of the app with the testing configuration
         """
         return create_app(testing=True)
+
+    def setUp(self):
+        super(TestApp, self).setUp()
+        # Load user credentials from the YAML file
+        self.load_user_credentials()
+
+    def load_user_credentials(self):
+        # Adjust the path if necessary
+        users_config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'config', 'users.yaml')
+        with open(users_config_path, 'r') as users_file:
+            users = yaml.safe_load(users_file)
+        # Assuming there's at least one user, use the first one for testing
+        self.test_username, self.test_password = next(iter(users.items()))
+
+    def get_auth_headers(self):
+        credentials = f"{self.test_username}:{self.test_password}"
+        encoded_credentials = base64.b64encode(credentials.encode()).decode()
+        return {'Authorization': f'Basic {encoded_credentials}'}
 
     def test_ping_route(self):
         """
@@ -55,10 +76,12 @@ class TestApp(TestCase):
         """
         Test the /forecast route with a valid city.
         """
+        auth_headers = self.get_auth_headers()
+        
         mock_convert_city.return_value = (51.5074, -0.1278)  # Coordinates for London
         mock_get_weather.return_value = (200, {'forecast': 'sunny'})
 
-        response = self.client.get('/forecast/London/')
+        response = self.client.get('/forecast/London/', headers=auth_headers)
         self.assertEqual(response.status_code, 200)
 
         # Parse the JSON response
@@ -73,9 +96,11 @@ class TestApp(TestCase):
         """
         Test the /forecast route with an invalid city.
         """
+        auth_headers = self.get_auth_headers()
+
         mock_convert_city.return_value = (None, None)
 
-        response = self.client.get('/forecast/unknowncity/')
+        response = self.client.get('/forecast/unknowncity/', headers=auth_headers)
         self.assertEqual(response.status_code, 404)
 
         # Parse the JSON response
@@ -90,11 +115,14 @@ class TestApp(TestCase):
         """
         Test the 500 error handler.
         """
+
+        auth_headers = self.get_auth_headers()
+
         # Configure the mock to raise an exception
         mock_get_weather.side_effect = Exception("Test exception")
 
         # Make a request that would normally call the mocked method
-        response = self.client.get('/forecast/somecity/')
+        response = self.client.get('/forecast/somecity/', headers=auth_headers)
 
         # Assert that a 500 status code is returned
         self.assertEqual(response.status_code, 500)

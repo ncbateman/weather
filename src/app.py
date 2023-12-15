@@ -9,22 +9,6 @@ import yaml
 # Define the root directory of the application.
 WEATHER_ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Initialize HTTP Basic Authentication
-auth = HTTPBasicAuth()
-
-# Load user credentials from a YAML file
-def load_user_credentials():
-    users_config_path = os.path.join(WEATHER_ROOT_DIR, 'config', 'users.yaml')
-    with open(users_config_path, 'r') as users_file:
-        return yaml.safe_load(users_file)
-
-USERS = load_user_credentials()
-
-@auth.verify_password
-def verify_password(username, password):
-    if username in USERS and USERS[username] == password:
-        return username
-
 def create_app(testing=False):
     # Initialize the Flask application
     app = Flask(__name__)
@@ -39,12 +23,6 @@ def create_app(testing=False):
 
     # Initialize WeatherService
     weather_service = WeatherService(app.config)
-
-    # Apply authentication to the forecast blueprint
-    @forecast_blueprint.before_request
-    @auth.login_required
-    def before_forecast():
-        pass
 
     # Register Blueprints
     app.register_blueprint(ping_blueprint)
