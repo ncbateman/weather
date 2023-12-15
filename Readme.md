@@ -121,6 +121,23 @@ To install Docker on Windows 11 using Windows Subsystem for Linux (WSL), follow 
    cd weather
    ```
 
+3. **Create Configuration File**
+
+   Copy the `config.example.yaml` file to a new file named `config.yaml`.
+
+   ```bash
+   cp config/config.example.yaml config/config.yaml
+   ```
+
+   Edit the `config.yaml` file and replace `api_key` with your actual API key from OpenWeatherMap.
+
+   ```yaml
+   API_KEY: "your_openweathermap_api_key"
+   BASE_URL: "https://api.openweathermap.org/data/3.0/onecall"
+   GEOCODING_URL: "http://api.openweathermap.org/geo/1.0/direct"
+   ```
+
+
 ## Usage
 
 The application can be built, run, and tested using the provided Bash or PowerShell scripts, depending on your operating system.
