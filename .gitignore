@@ -2,6 +2,5 @@
 
 # Ignore the OpenWeatherMap credentials file
 /src/config/config.yaml
-
 # Ignore the auth credentials file
 /src/config/users.yaml
