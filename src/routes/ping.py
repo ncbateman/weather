@@ -2,18 +2,20 @@
 
 from flask import Blueprint, jsonify
 
-# Create a Blueprint for the ping route
+# Blueprint setup for 'ping' route
 ping_blueprint = Blueprint('ping', __name__)
 
+# Define route '/ping/' with method 'GET'
 @ping_blueprint.route('/ping/', methods=['GET'])
 def ping():
     """
-    Health check endpoint. Returns basic information about the application,
-    including its name and version.
+    Health check endpoint returning application status.
+    Includes application name, status, and version.
     """
+    # Response with app details
     response = {
         "name": "weatherservice",
         "status": "ok",
         "version": "1.0.0"
     }
-    return jsonify(response)
+    return jsonify(response)  # Return JSON response
